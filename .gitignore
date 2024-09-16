@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+
+# Envs
+.env
+
+# Databases
+db.sqlite3
+
+# IDE stuff
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history
+
+# Other
