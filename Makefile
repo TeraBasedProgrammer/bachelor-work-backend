@@ -1,14 +1,8 @@
-# run-local:
-# 	python manage.py runserver
-
-# run:
-# 	docker compose up -d
+run:
+	docker compose up -d
 
 # migrate:
 # 	docker compose exec app python manage.py migrate
-
-# makemigr:
-# 	python manage.py makemigrations
 
 down:
 	docker compose down
@@ -39,6 +33,9 @@ rebuild:
 
 redis:
 	docker compose exec redis redis-cli
+
+database:
+	pgcli postgresql://postgres:password123456@localhost:5432/mentorship_app
 
 lint:
 	black . && isort . --profile=black && flake8 .

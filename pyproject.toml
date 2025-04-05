@@ -5,9 +5,26 @@ description = ""
 authors = ["Ilya Dronov <ilyadronov2332@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 python-dotenv = "^1.0.1"
+fastapi = {extras = ["standard"], version = "^0.115.12"}
+alembic = "^1.15.2"
+flower = "^2.0.1"
+celery = "^5.5.0"
+redis = "^5.2.1"
+sqlalchemy = "^2.0.40"
+uvicorn = "^0.34.0"
+pydantic = "^2.11.2"
+pydantic-settings = "^2.8.1"
+pathlib = "^1.0.1"
+fastapi-pagination = "^0.12.34"
+python-decouple = "^3.8"
+asyncpg = "^0.30.0"
+passlib = "^1.7.4"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -15,6 +32,47 @@ flake8 = "^7.1.1"
 black = "^24.8.0"
 isort = "^5.13.2"
 pre-commit = "^3.8.0"
+
+[tool.black]
+color=true
+exclude = '''
+    /(
+        \.git
+        | \._build
+        | \.back.out
+        | \.build
+        | \.coverage
+        | \.dist
+        | \.hg
+        | \.mypy_cache
+        | \.tox
+        | \.venv
+        | ./src/coverage
+        | blib2to3
+        | tests/data
+        | ./migrations
+    )/
+'''
+include = '\.pyi?$'
+line-length = 88
+
+[tool.isort]
+profile="black"
+skip = [
+    ".coverage",
+    "migrations/*",
+    "coverage/*",
+    "cov.html",
+    ".dockerignore",
+    ".env",
+    ".github",
+    ".gitignore",
+    ".html",
+    ".md",
+    ".python-version",
+    ".rst",
+    ".xml"
+]
 
 [build-system]
 requires = ["poetry-core"]
