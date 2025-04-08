@@ -5,6 +5,7 @@ Revises:
 Create Date: 2025-04-05 19:17:59.176708
 
 """
+
 from typing import Sequence, Union
 
 import sqlalchemy as sa
@@ -24,8 +25,8 @@ def upgrade() -> None:
         "activity_categories",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("title", sa.String(length=50), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -33,8 +34,8 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("first_user_id", sa.UUID(), nullable=False),
         sa.Column("second_user_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -60,8 +61,8 @@ def upgrade() -> None:
         sa.Column("longitude", sa.String(length=25), nullable=True),
         sa.Column("latitude", sa.String(length=25), nullable=True),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("phone_number"),
@@ -74,8 +75,8 @@ def upgrade() -> None:
         sa.Column(
             "type", sa.Enum("SEEKING", "PROVIDING", name="servicetypes"), nullable=False
         ),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["category_id"], ["activity_categories.id"], ondelete="CASCADE"
         ),
@@ -95,8 +96,8 @@ def upgrade() -> None:
         sa.Column("file_url", sa.String(length=255), nullable=True),
         sa.Column("is_read", sa.Boolean(), nullable=False),
         sa.Column("is_edited", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["conversation_id"], ["chat_conversations.id"], ondelete="CASCADE"
         ),
@@ -112,8 +113,8 @@ def upgrade() -> None:
         sa.Column("number_of_views", sa.Integer(), nullable=False),
         sa.Column("service_type", sa.String(length=2), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -124,8 +125,8 @@ def upgrade() -> None:
         sa.Column("credits_amount", sa.Integer(), nullable=False),
         sa.Column("payment_type", sa.String(length=2), nullable=False),
         sa.Column("status", sa.String(length=2), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -135,8 +136,8 @@ def upgrade() -> None:
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("status", sa.String(length=2), nullable=False),
         sa.Column("admin_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -145,8 +146,8 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("category_id", sa.UUID(), nullable=False),
         sa.Column("post_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["category_id"], ["activity_categories.id"], ondelete="CASCADE"
         ),

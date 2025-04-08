@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Optional
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -35,9 +35,10 @@ class Transaction(Base):
     payment_type: Mapped[PaymentTypes] = mapped_column(String(2), nullable=False)
     status: Mapped[TransactionStatuses] = mapped_column(String(2), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc)
+        TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )

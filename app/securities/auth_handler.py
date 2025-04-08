@@ -22,7 +22,7 @@ class AuthHandler:
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password, scheme="bcrypt")
 
-    def encode_token(self, user_id: int, user_email: str) -> str:
+    def encode_token(self, user_id: str, user_email: str) -> str:
         # Initialize user_crud object to get user id once and put it in jwt payload
 
         payload = {
