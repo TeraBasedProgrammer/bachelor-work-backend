@@ -72,11 +72,8 @@ async def get_user_profile(
     return UserFullSchema(**current_user.__dict__)
 
 
-# @router.patch("/{user_id}")
-# async def update_user(user_id: str, user: User):
-#     pass
+# @router.post("/upload-cv")
+# async def upload_cv(file: UploadFile = File(...)) -> None:
+#     from app.config.logs.logger import logger
 
-
-# @router.delete("/{user_id}")
-# async def delete_user(user_id: str):
-#     pass
+#     logger.critical(upload_file_to_s3(file.file, file.filename))
