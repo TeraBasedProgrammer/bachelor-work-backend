@@ -12,6 +12,14 @@ from app.utilities.validation import (
 )
 
 
+class TokenData(BaseModel):
+    token: str
+
+
+class LoginResponse(TokenData):
+    pass
+
+
 class UserBase(BaseModel):
     email: EmailStr
     name: str
@@ -42,14 +50,9 @@ class UserLoginInput(BaseModel):
     password: str
 
 
-class JwtToken(BaseModel):
-    token: str
-
-
 class UserFullSchema(BaseModel):
     id: UUID
     email: str
-    password: str
     phone_number: Optional[str] = None
     name: str
     profile_picture: Optional[str] = None
@@ -68,4 +71,13 @@ class UserFullSchema(BaseModel):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class ForgotPasswordResetInput(TokenData):
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value):
+        return validate_password(value)

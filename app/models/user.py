@@ -3,9 +3,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Boolean
-from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import Float, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Float, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,13 +26,14 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
+    google_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
     phone_number: Mapped[Optional[str]] = mapped_column(
         String(20), unique=True, nullable=True
     )
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
-    profile_picture: Mapped[str] = mapped_column(String(255), nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    profile_picture: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     id_card_photo: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     balance: Mapped[int] = mapped_column(default=0)
@@ -45,7 +44,7 @@ class User(Base):
     )
     service_price: Mapped[float] = mapped_column(Float, nullable=True)
     service_price_type: Mapped[ServicePriceTypes] = mapped_column(
-        SQLEnum(ServicePriceTypes), default=ServicePriceTypes.PER_LESSON
+        String(2), default=ServicePriceTypes.PER_LESSON.value
     )
     longitude: Mapped[Optional[str]] = mapped_column(String(25), nullable=True)
     latitude: Mapped[Optional[str]] = mapped_column(String(25), nullable=True)
@@ -83,9 +82,10 @@ class UserVerification(Base):
     status: Mapped[str] = mapped_column(String(2), nullable=False)
     admin_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc)
+        TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
@@ -110,9 +110,10 @@ class ActivityCategory(Base):
     )
     title: Mapped[str] = mapped_column(String(50), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc)
+        TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
@@ -138,11 +139,12 @@ class ActivityCategoryUser(Base):
     category_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("activity_categories.id", ondelete="CASCADE"), nullable=False
     )
-    type: Mapped[ServiceTypes] = mapped_column(SQLEnum(ServiceTypes), nullable=False)
+    type: Mapped[ServiceTypes] = mapped_column(String(2), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc)
+        TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )

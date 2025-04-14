@@ -1,18 +1,18 @@
 """initial migration
 
-Revision ID: 4af21059d331
+Revision ID: f016f9a3f48e
 Revises:
-Create Date: 2025-04-05 19:17:59.176708
+Create Date: 2025-04-09 15:42:17.267409
 
 """
-
 from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "4af21059d331"
+revision: str = "f016f9a3f48e"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,8 +25,8 @@ def upgrade() -> None:
         "activity_categories",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("title", sa.String(length=50), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -34,13 +34,14 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("first_user_id", sa.UUID(), nullable=False),
         sa.Column("second_user_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "users",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("google_id", sa.String(length=255), nullable=True),
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("password", sa.String(length=100), nullable=False),
         sa.Column("phone_number", sa.String(length=20), nullable=True),
@@ -53,16 +54,12 @@ def upgrade() -> None:
         sa.Column("about_me_text", sa.Text(), nullable=True),
         sa.Column("about_me_video_link", sa.String(length=255), nullable=True),
         sa.Column("service_price", sa.Float(), nullable=True),
-        sa.Column(
-            "service_price_type",
-            sa.Enum("PER_HOUR", "PER_LESSON", name="servicepricetypes"),
-            nullable=False,
-        ),
+        sa.Column("service_price_type", sa.String(length=2), nullable=False),
         sa.Column("longitude", sa.String(length=25), nullable=True),
         sa.Column("latitude", sa.String(length=25), nullable=True),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("phone_number"),
@@ -72,11 +69,9 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("category_id", sa.UUID(), nullable=False),
-        sa.Column(
-            "type", sa.Enum("SEEKING", "PROVIDING", name="servicetypes"), nullable=False
-        ),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("type", sa.String(length=2), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["category_id"], ["activity_categories.id"], ondelete="CASCADE"
         ),
@@ -96,8 +91,8 @@ def upgrade() -> None:
         sa.Column("file_url", sa.String(length=255), nullable=True),
         sa.Column("is_read", sa.Boolean(), nullable=False),
         sa.Column("is_edited", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["conversation_id"], ["chat_conversations.id"], ondelete="CASCADE"
         ),
@@ -113,8 +108,8 @@ def upgrade() -> None:
         sa.Column("number_of_views", sa.Integer(), nullable=False),
         sa.Column("service_type", sa.String(length=2), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -125,8 +120,8 @@ def upgrade() -> None:
         sa.Column("credits_amount", sa.Integer(), nullable=False),
         sa.Column("payment_type", sa.String(length=2), nullable=False),
         sa.Column("status", sa.String(length=2), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -136,8 +131,8 @@ def upgrade() -> None:
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("status", sa.String(length=2), nullable=False),
         sa.Column("admin_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -146,8 +141,8 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("category_id", sa.UUID(), nullable=False),
         sa.Column("post_id", sa.UUID(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("created_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["category_id"], ["activity_categories.id"], ondelete="CASCADE"
         ),

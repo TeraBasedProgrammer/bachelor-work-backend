@@ -4,17 +4,13 @@ from typing import Optional
 from fastapi import HTTPException, status
 
 from app.config.logs.logger import logger
-from app.utilities.formatters import error_wrapper
 
 
-def validate_password(value: str, field_name: str = "password"):
+def validate_password(value: str):
     if not re.compile(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$").match(value):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_wrapper(
-                "Password should contain at least eight characters, at least one letter and one number",
-                field_name,
-            ),
+            detail="Password should contain at least eight characters, at least one letter and one number",
         )
     return value
 
@@ -26,14 +22,14 @@ def validate_name(value: Optional[str]):
         logger.warning("Validation error: 'name' has invalid length")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_wrapper("Name should contain from 2 to 25 characters", "name"),
+            detail="Name should contain from 2 to 25 characters",
         )
 
     if not re.compile(r"^[a-zA-Z\- ]+$").match(value):
         logger.warning("Validation error: 'name' field contains restricted characters")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_wrapper("Name should contain only english letters", "name"),
+            detail="Name should contain only english letters",
         )
     return value
 
@@ -45,9 +41,7 @@ def validate_phone_number(value: Optional[str]):
         logger.warning("Validation error: 'phone_number' has invalid length")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_wrapper(
-                "Phone number should contain from 8 to 20 characters", "phone_number"
-            ),
+            detail="Phone number should contain from 8 to 20 characters",
         )
     if value[0] != "+" or not re.compile(r"^\d+$").match(value[1:]):
         logger.warning(
@@ -55,9 +49,6 @@ def validate_phone_number(value: Optional[str]):
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_wrapper(
-                "Phone number should start with '+' and contain only numeric characters (0-9)",
-                "phone_number",
-            ),
+            detail="Phone number should start with '+' and contain only numeric characters (0-9)",
         )
     return value

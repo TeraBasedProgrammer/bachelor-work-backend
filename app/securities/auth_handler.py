@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
+from uuid import UUID
 
 import jwt
 from fastapi import HTTPException
@@ -22,21 +23,19 @@ class AuthHandler:
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password, scheme="bcrypt")
 
-    def encode_token(self, user_id: str, user_email: str) -> str:
-        # Initialize user_crud object to get user id once and put it in jwt payload
-
+    def encode_token(self, user_id: UUID, user_email: str) -> str:
         payload = {
             "exp": datetime.now(timezone.utc) + timedelta(days=30),
             "iat": datetime.now(timezone.utc),
             "sub": user_email,
-            "id": user_id,
+            "id": str(user_id),
         }
         return jwt.encode(payload, self.secret, algorithm="HS256")
 
     def decode_token(self, token: str) -> Optional[Dict[str, bool]]:
         try:
             payload = jwt.decode(token, self.secret, algorithms=["HS256"])
-            return {"email": payload["sub"], "id": payload["id"], "auth0": False}
+            return {"email": payload["sub"], "id": payload["id"]}
         except jwt.ExpiredSignatureError:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, detail="Signature has expired"

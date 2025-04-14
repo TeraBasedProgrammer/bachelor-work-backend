@@ -36,7 +36,5 @@ class BaseService:
     #         logger.warning("Validation error: No parameters have been provided")
     #         raise HTTPException(
     #             status.HTTP_400_BAD_REQUEST,
-    #             detail=error_wrapper(
-    #                 "At least one valid field should be provided", None
-    #             ),
+    #             detail="At least one valid field should be provided",
     #         )
