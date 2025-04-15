@@ -18,6 +18,7 @@ from app.schemas.user import (
     ForgotPasswordResetInput,
     LoginResponse,
     TokenData,
+    UserFullSchema,
     UserLoginInput,
     UserSignUpInput,
 )
@@ -36,15 +37,16 @@ class UserService(BaseService):
         user_data.password = auth_handler.get_password_hash(user_data.password)
 
         try:
-            result = await self.user_repository.create_user(user_data)
+            result: User = await self.user_repository.create_user(user_data)
+            logger.info("New user instance has been successfully created")
         except IntegrityError:
             raise HTTPException(
                 status.HTTP_409_CONFLICT,
-                detail="User with this email already exists",
+                detail="User with this email or phone number already exists",
             )
 
-        logger.info("New user instance has been successfully created")
-        return result
+        auth_token = auth_handler.encode_token(result.id, result.email)
+        return LoginResponse(token=auth_token, user=UserFullSchema(**result.__dict__))
 
     async def authenticate_user(self, user_data: UserLoginInput) -> dict[str, Any]:
         logger.info(f'Login attempt with email "{user_data.email}"')
@@ -75,7 +77,9 @@ class UserService(BaseService):
 
         user_id = str(user_existing_object.id)
         auth_token = auth_handler.encode_token(user_id, user_data.email)
-        return LoginResponse(token=auth_token)
+        return LoginResponse(
+            token=auth_token, user=UserFullSchema(**user_existing_object.__dict__)
+        )
 
     async def google_login(self, google_data: TokenData) -> LoginResponse:
         logger.info("Google login attempt")
@@ -100,8 +104,6 @@ class UserService(BaseService):
         email = user_google_info.get("email")
         name = user_google_info.get("name")
 
-        logger.critical(user_google_info)
-
         existing_user = await self.user_repository.get_user_by_email(email)
 
         if existing_user:
@@ -115,7 +117,9 @@ class UserService(BaseService):
                 )
 
             auth_token = auth_handler.encode_token(existing_user.id, email)
-            return LoginResponse(token=auth_token)
+            return LoginResponse(
+                token=auth_token, user=UserFullSchema(**existing_user.__dict__)
+            )
 
         logger.info("Creating new User instance")
 
@@ -130,7 +134,7 @@ class UserService(BaseService):
         await self.user_repository.save(new_user)
 
         auth_token = auth_handler.encode_token(new_user.id, email)
-        return LoginResponse(token=auth_token)
+        return LoginResponse(token=auth_token, user=UserFullSchema(**new_user.__dict__))
 
     async def verify_forgot_password_token(self, token: str) -> None:
         if not await redis.get(token):

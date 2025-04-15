@@ -16,12 +16,10 @@ class UserRepository(BaseRepository):
         new_user: User = await self.create(user_data)
 
         logger.debug("Successfully inserted new user instance into the database")
-        return {"id": new_user.id, "email": new_user.email}
+        return new_user
 
     async def get_users(self) -> list[User]:
-        result = await self.async_session.execute(
-            select(User).options(joinedload(User.companies))
-        )
+        result = await self.async_session.execute(select(User))
         return result.unique().scalars().all()
 
     async def get_user_by_id(self, user_id: int) -> Optional[User]:

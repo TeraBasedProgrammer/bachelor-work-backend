@@ -32,7 +32,7 @@ async def google_login(
     return await user_service.google_login(token)
 
 
-@router.post("/auth/signup")
+@router.post("/auth/sign-up")
 async def register_user(
     sign_up_data: UserSignUpInput,
     user_service: UserService = Depends(get_user_service),

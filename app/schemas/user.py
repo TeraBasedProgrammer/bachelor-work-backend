@@ -12,12 +12,36 @@ from app.utilities.validation import (
 )
 
 
+class UserFullSchema(BaseModel):
+    id: UUID
+    email: str
+    phone_number: Optional[str] = None
+    name: str
+    profile_picture: Optional[str] = None
+    id_card_photo: Optional[str] = None
+    is_verified: bool
+    balance: int
+    cv_link: Optional[str] = None
+    about_me_text: Optional[str] = None
+    about_me_video_link: Optional[str] = None
+    service_price: Optional[float] = None
+    service_price_type: ServicePriceTypes
+    longitude: Optional[str] = None
+    latitude: Optional[str] = None
+    is_admin: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class TokenData(BaseModel):
     token: str
 
 
 class LoginResponse(TokenData):
-    pass
+    user: UserFullSchema
 
 
 class UserBase(BaseModel):
@@ -48,30 +72,6 @@ class UserSignUpInput(UserBase):
 class UserLoginInput(BaseModel):
     email: EmailStr
     password: str
-
-
-class UserFullSchema(BaseModel):
-    id: UUID
-    email: str
-    phone_number: Optional[str] = None
-    name: str
-    profile_picture: Optional[str] = None
-    id_card_photo: Optional[str] = None
-    is_verified: bool
-    balance: int
-    cv_link: Optional[str] = None
-    about_me_text: Optional[str] = None
-    about_me_video_link: Optional[str] = None
-    service_price: Optional[float] = None
-    service_price_type: ServicePriceTypes
-    longitude: Optional[str] = None
-    latitude: Optional[str] = None
-    is_admin: bool
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class ForgotPasswordResetInput(TokenData):
