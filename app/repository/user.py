@@ -1,11 +1,11 @@
 from typing import Any, Optional
 
 from pydantic import EmailStr
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import joinedload
 
 from app.config.logs.logger import logger
-from app.models.user import User
+from app.models.user import ActivityCategoryUser, User
 from app.repository.base import BaseRepository
 
 
@@ -25,8 +25,12 @@ class UserRepository(BaseRepository):
     async def get_user_by_id(self, user_id: int) -> Optional[User]:
         query = (
             select(User)
-            .options(joinedload(User.tags), joinedload(User.companies))
             .where(User.id == user_id)
+            .options(
+                joinedload(User.activity_categories).joinedload(
+                    ActivityCategoryUser.category
+                )
+            )
         )
         result: Optional[User] = await self.get_instance(query)
         if result:
@@ -34,7 +38,15 @@ class UserRepository(BaseRepository):
         return result
 
     async def get_user_by_email(self, email: EmailStr) -> Optional[User]:
-        query = select(User).where(User.email == email)
+        query = (
+            select(User)
+            .where(User.email == email)
+            .options(
+                joinedload(User.activity_categories).joinedload(
+                    ActivityCategoryUser.category
+                )
+            )
+        )
         result: Optional[User] = await self.get_instance(query)
         if result:
             logger.debug(f'Retrieved user by email "{email}": "{result.id}"')
@@ -62,3 +74,9 @@ class UserRepository(BaseRepository):
 
         logger.debug(f'Successfully deleted user "{result}" from the database')
         return result
+
+    async def clean_activity_categories(self, user_id: int) -> None:
+        await self.async_session.execute(
+            delete(ActivityCategoryUser).where(ActivityCategoryUser.user_id == user_id)
+        )
+        await self.async_session.commit()

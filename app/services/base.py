@@ -1,6 +1,11 @@
-from fastapi import HTTPException, status
+from typing import Optional
+from uuid import UUID
+
+from fastapi import HTTPException, UploadFile, status
+from pydantic import BaseModel
 
 from app.repository.base import BaseRepository
+from app.utilities.s3 import upload_file_to_s3_async
 
 
 class BaseService:
@@ -13,28 +18,19 @@ class BaseService:
                 detail=f"{repository.model.__name__} is not found",
             )
 
-    # async def _validate_user_permissions(
-    #     self,
-    #     company_repository: CompanyRepository,
-    #     company_id: int,
-    #     user_id: int,
-    #     roles: Optional[tuple[RoleEnum]] = None,
-    #     raise_exception: bool = True,
-    # ) -> None:
-    #     members: list[CompanyMember] = await company_repository.get_company_members(
-    #         company_id
-    #     )
-    #     is_member = validate_user_company_role(members, user_id, roles)
-    #     if not is_member and raise_exception:
-    #         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    async def _upload_files_to_s3(
+        self,
+        data: BaseModel,
+        upload_tasks: tuple[str, ...],
+    ) -> None:
+        user_id: UUID = getattr(data, "user_id", None) or getattr(data, "id", None)
 
-    #     return is_member
-
-    # def _validate_update_data(self, update_data: BaseModel) -> None:
-    #     new_fields: dict = update_data.model_dump(exclude_none=True)
-    #     if new_fields == {}:
-    #         logger.warning("Validation error: No parameters have been provided")
-    #         raise HTTPException(
-    #             status.HTTP_400_BAD_REQUEST,
-    #             detail="At least one valid field should be provided",
-    #         )
+        for field_name, filename in upload_tasks:
+            file_obj: Optional[UploadFile | str] = getattr(data, field_name, None)
+            if file_obj:
+                uploaded_url = await upload_file_to_s3_async(
+                    file_obj,
+                    f"{user_id}/{filename}",
+                    file_obj.content_type,
+                )
+                setattr(data, field_name, uploaded_url)

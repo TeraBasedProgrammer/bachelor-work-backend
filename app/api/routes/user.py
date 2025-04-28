@@ -1,4 +1,7 @@
-from fastapi import APIRouter, BackgroundTasks, Body, Depends
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Form
 
 from app.api.dependencies.services import get_user_service
 from app.api.dependencies.user import get_current_user
@@ -6,10 +9,12 @@ from app.models.user import User
 from app.schemas.user import (
     ForgotPasswordResetInput,
     LoginResponse,
+    PasswordResetInput,
     TokenData,
     UserFullSchema,
     UserLoginInput,
     UserSignUpInput,
+    UserUpdateSchema,
 )
 from app.services.user import UserService
 
@@ -69,11 +74,23 @@ async def reset_password(
 async def get_user_profile(
     current_user: User = Depends(get_current_user),
 ) -> UserFullSchema:
-    return UserFullSchema(**current_user.__dict__)
+    return UserFullSchema.from_model(current_user)
 
 
-# @router.post("/upload-cv")
-# async def upload_cv(file: UploadFile = File(...)) -> None:
-#     from app.config.logs.logger import logger
+@router.patch("/{user_id}/update")
+async def update_user(
+    user_id: UUID,
+    update_data: Annotated[UserUpdateSchema, Form()],
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+) -> UserFullSchema:
+    return await user_service.update_user(user_id, update_data, current_user)
 
-#     logger.critical(upload_file_to_s3(file.file, file.filename))
+
+@router.patch("/change-password")
+async def change_password(
+    reset_data: PasswordResetInput,
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    return await user_service.reset_password(current_user, reset_data)

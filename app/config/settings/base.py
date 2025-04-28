@@ -29,6 +29,14 @@ class BackendBaseSettings(BaseSettings):
     AWS_REGION: str = decouple.config("AWS_REGION")
     AWS_BUCKET_NAME: str = decouple.config("AWS_BUCKET_NAME")
     AWS_S3_ENDPOINT: str = decouple.config("AWS_S3_ENDPOINT")
+
+    # Stripe
+    STRIPE_SECRET_KEY: str = decouple.config("STRIPE_SECRET_KEY")
+    STRIPE_WEBHOOK_SECRET: str = decouple.config("STRIPE_WEBHOOK_SECRET")
+    STRIPE_25_CREDITS_PRICE_ID: str = decouple.config("STRIPE_25_CREDITS_PRICE_ID")
+    STRIPE_200_CREDITS_PRICE_ID: str = decouple.config("STRIPE_200_CREDITS_PRICE_ID")
+    STRIPE_500_CREDITS_PRICE_ID: str = decouple.config("STRIPE_500_CREDITS_PRICE_ID")
+
     # SMTP
     SMTP_HOST: str = decouple.config("SMTP_HOST")
     SMTP_PORT: int = decouple.config("SMTP_PORT", cast=int)

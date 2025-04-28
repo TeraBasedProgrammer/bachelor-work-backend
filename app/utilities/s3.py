@@ -1,5 +1,10 @@
+import asyncio
+import mimetypes
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
+
 import boto3
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 
 from app.config.settings.base import settings
 
@@ -9,18 +14,17 @@ s3 = boto3.client(
     aws_secret_access_key=settings.AWS_SECRET_KEY,
     region_name=settings.AWS_REGION,
 )
-import mimetypes
-from typing import BinaryIO, Optional
+executor = ThreadPoolExecutor()
 
 
 def upload_file_to_s3(
-    file: BinaryIO, filename: str, content_type: Optional[str] = None
+    file: UploadFile, filename: str, content_type: Optional[str] = None
 ) -> str:
     """
     Upload a file to S3 bucket.
 
     Args:
-        file: File-like object containing the file data
+        file: FastAPI UploadFile object containing the file data
         filename: Name of the file to be stored in S3
         content_type: Optional MIME type of the file. If not provided, will be guessed from filename.
 
@@ -28,7 +32,7 @@ def upload_file_to_s3(
         str: URL of the uploaded file in S3
     """
     if not content_type:
-        content_type = mimetypes.guess_type(filename)[0]
+        content_type = file.content_type or mimetypes.guess_type(filename)[0]
 
     if not content_type:
         content_type = "application/octet-stream"
@@ -46,16 +50,23 @@ def upload_file_to_s3(
 
     try:
         s3.upload_fileobj(
-            file,
+            file.file,
             settings.AWS_BUCKET_NAME,
             filename,
             ExtraArgs={"ContentType": content_type},
         )
 
-        url = f"{settings.AWS_S3_ENDPOINT}/{filename}"
-        return url
+        return filename
 
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Error uploading file to S3: {str(e)}"
         )
+
+
+async def upload_file_to_s3_async(
+    file: UploadFile, filename: str, content_type: Optional[str] = None
+) -> str:
+    return await asyncio.get_event_loop().run_in_executor(
+        executor, lambda: upload_file_to_s3(file, filename, content_type)
+    )

@@ -38,7 +38,7 @@ class BaseRepository:
 
     async def get_many(self, query: Select) -> list[Any]:
         response = await self.async_session.execute(query)
-        result = response.unique().all()
+        result = self.unpack(response.unique().all())
         return result
 
     async def get_instance(self, query: Select) -> Base:
@@ -78,7 +78,11 @@ class BaseRepository:
         self.async_session.add(obj)
         await self.async_session.commit()
 
-    async def save_many(self, objects: list[Any]):
+    async def save_many(self, objects: list[Any], with_expire: bool = False):
         self.async_session.add_all(objects)
         await self.async_session.commit()
-        self.async_session.expire_all()
+        if with_expire:
+            self.async_session.expire_all()
+
+    async def refresh(self, obj: Any, attribute_names: list[str] | None = None):
+        await self.async_session.refresh(obj, attribute_names)

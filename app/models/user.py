@@ -4,10 +4,22 @@ from enum import Enum
 from typing import Optional
 
 from sqlalchemy import Boolean, Float, ForeignKey, String, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
+from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+
+class MentorVerificationStatus(str, Enum):
+    PENDING = "PD"
+    UNVERIFIED = "UV"
+    VERIFIED = "VR"
+
+
+class UserVerificationStatus(str, Enum):
+    PENDING = "PD"
+    APPROVED = "AP"
+    DECLINED = "DC"
 
 
 class ServicePriceTypes(str, Enum):
@@ -35,7 +47,11 @@ class User(Base):
     name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     profile_picture: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     id_card_photo: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_status: Mapped[MentorVerificationStatus] = mapped_column(
+        String(2),
+        default=MentorVerificationStatus.UNVERIFIED.value,
+        server_default=MentorVerificationStatus.UNVERIFIED.value,
+    )
     balance: Mapped[int] = mapped_column(default=0)
     cv_link: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     about_me_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -79,8 +95,22 @@ class UserVerification(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    status: Mapped[str] = mapped_column(String(2), nullable=False)
-    admin_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
+    status: Mapped[UserVerificationStatus] = mapped_column(
+        String(2), default=UserVerificationStatus.PENDING.value
+    )
+    id_card_photo: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
+    about_me_text: Mapped[Optional[str]] = mapped_column(Text, nullable=False)
+    about_me_video_link: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    activity_categories: Mapped[list[uuid.UUID]] = mapped_column(JSONB, nullable=False)
+    service_price: Mapped[float] = mapped_column(Float, nullable=False)
+    service_price_type: Mapped[ServicePriceTypes] = mapped_column(
+        String(2), default=ServicePriceTypes.PER_LESSON.value
+    )
+    cv_link: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
+
+    admin_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -139,7 +169,9 @@ class ActivityCategoryUser(Base):
     category_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("activity_categories.id", ondelete="CASCADE"), nullable=False
     )
-    type: Mapped[ServiceTypes] = mapped_column(String(2), nullable=False)
+    type: Mapped[ServiceTypes] = mapped_column(
+        String(2), nullable=False, default=ServiceTypes.SEEKING.value
+    )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -162,4 +194,4 @@ class ActivityCategoryUser(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<ActivityCategoryUser {self.id} for user {self.user_id} and category {self.category_id}>"
+        return f"<ActivityCategoryUser for user {self.user_id} and category {self.category_id}>"
