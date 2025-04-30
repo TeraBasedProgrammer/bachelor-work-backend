@@ -77,6 +77,14 @@ async def get_user_profile(
     return UserFullSchema.from_model(current_user)
 
 
+@router.get("/{user_id}")
+async def get_user(
+    user_id: UUID,
+    user_service: UserService = Depends(get_user_service),
+) -> UserFullSchema:
+    return await user_service.get_user_by_id(user_id)
+
+
 @router.patch("/{user_id}/update")
 async def update_user(
     user_id: UUID,

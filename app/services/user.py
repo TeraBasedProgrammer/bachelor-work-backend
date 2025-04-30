@@ -259,3 +259,13 @@ class UserService(BaseService):
 
         await self.user_repository.save(current_user)
         logger.info("The password was successfully updated")
+
+    async def get_user_by_id(self, user_id: uuid.UUID) -> UserFullSchema:
+        user = await self.user_repository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail="User with this id is not found",
+            )
+
+        return UserFullSchema.from_model(user)

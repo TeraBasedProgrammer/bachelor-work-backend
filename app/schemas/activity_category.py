@@ -23,3 +23,8 @@ class ActivityCategoryUserSchema(BaseModel):
     id: UUID
     title: str
     type: str
+
+
+class ActivityCategoryPostSchema(BaseModel):
+    id: UUID
+    title: str
