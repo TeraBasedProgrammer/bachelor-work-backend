@@ -1,23 +1,36 @@
-from typing import Optional
+from typing import Optional, Tuple
 from uuid import UUID
 
 from fastapi import HTTPException, status
 
 from app.models.post import ActivityCategoryPost, Post
 from app.repository.post import PostRepository
-from app.schemas.post import PostCreate, PostSchema, PostUpdate
+from app.schemas.post import (
+    PostCreate,
+    PostFilter,
+    PostPagination,
+    PostSchema,
+    PostSort,
+    PostUpdate,
+)
 
 
 class PostService:
     def __init__(self, repository: PostRepository):
         self.repository = repository
 
-    async def get_posts(self) -> list[PostSchema]:
+    async def get_posts(
+        self,
+        filters: Optional[PostFilter] = None,
+        sort: Optional[PostSort] = None,
+        pagination: Optional[PostPagination] = None,
+    ) -> Tuple[list[PostSchema], int]:
         """
-        Get all posts.
+        Get all posts with filtering, sorting, and pagination.
+        Returns a tuple of (posts, total_count).
         """
-        posts = await self.repository.get_posts()
-        return [PostSchema.from_model(post) for post in posts]
+        posts, total_count = await self.repository.get_posts(filters, sort, pagination)
+        return [PostSchema.from_model(post) for post in posts], total_count
 
     async def get_post(
         self, post_id: UUID, with_user: bool = False, increment_views: bool = False

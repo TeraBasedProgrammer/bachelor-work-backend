@@ -2,11 +2,13 @@ from fastapi import Depends
 
 from app.api.dependencies.repository import get_repository
 from app.repository.activity_category import ActivityCategoryRepository
+from app.repository.invoice import InvoiceRepository
 from app.repository.post import PostRepository
 from app.repository.user import UserRepository
 from app.repository.user_verification import UserVerificationRepository
 from app.services.activity_category import ActivityCategoryService
 from app.services.billing import BillingService
+from app.services.invoice import InvoiceService
 from app.services.post import PostService
 from app.services.user import UserService
 from app.services.user_verification import UserVerificationService
@@ -49,4 +51,11 @@ def get_post_service(
     post_repository: PostRepository = Depends(get_repository(PostRepository)),
 ) -> PostService:
     service = PostService(post_repository)
+    return service
+
+
+def get_invoice_service(
+    invoice_repository: InvoiceRepository = Depends(get_repository(InvoiceRepository)),
+) -> InvoiceService:
+    service = InvoiceService(invoice_repository)
     return service

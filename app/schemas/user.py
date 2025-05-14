@@ -30,7 +30,7 @@ class S3UrlMixin(BaseModel):
             return f"{settings.AWS_S3_ENDPOINT}/{value}"
 
 
-class UserFullSchema(S3UrlMixin):
+class UserBaseSchema(S3UrlMixin):
     id: UUID
     email: str
     phone_number: Optional[str] = None
@@ -49,6 +49,9 @@ class UserFullSchema(S3UrlMixin):
     is_admin: bool
     created_at: datetime
     updated_at: datetime
+
+
+class UserFullSchema(UserBaseSchema):
     activity_categories: list[ActivityCategoryUserSchema]
 
     @classmethod
