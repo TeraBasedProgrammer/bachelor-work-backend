@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -15,7 +16,8 @@ class InvoiceBase(BaseModel):
     mentor_id: UUID
     mentee_id: UUID
     amount: int
-    status: InvoiceStatus = InvoiceStatus.PENDING
+    description: Optional[str] = None
+    due_date: datetime
 
 
 class InvoiceCreate(InvoiceBase):
@@ -23,11 +25,14 @@ class InvoiceCreate(InvoiceBase):
 
 
 class InvoiceUpdate(BaseModel):
-    status: InvoiceStatus
+    status: Optional[InvoiceStatus] = None
+    cancellation_reason: Optional[str] = None
 
 
 class InvoiceResponse(InvoiceBase):
     id: UUID
+    status: InvoiceStatus
+    cancellation_reason: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

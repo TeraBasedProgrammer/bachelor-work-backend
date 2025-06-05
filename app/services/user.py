@@ -188,6 +188,7 @@ class UserService(BaseService):
         await self.verify_forgot_password_token(reset_data.token)
 
         user_email: EmailStr = await redis.get(reset_data.token)
+        logger.critical(user_email)
         user_to_update = await self.user_repository.get_user_by_email(user_email)
 
         user_to_update.password = auth_handler.get_password_hash(reset_data.password)

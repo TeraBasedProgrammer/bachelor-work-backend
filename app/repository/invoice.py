@@ -15,7 +15,11 @@ class InvoiceRepository(BaseRepository):
         return await self.get_instance(query)
 
     async def get_invoices_by_mentor_id(self, mentor_id: UUID) -> list[LessonInvoice]:
-        query = select(LessonInvoice).where(LessonInvoice.mentor_id == mentor_id)
+        query = (
+            select(LessonInvoice)
+            .where(LessonInvoice.mentor_id == mentor_id)
+            .order_by(LessonInvoice.due_date.desc())
+        )
         return await self.get_many(query)
 
     async def get_invoices_by_mentee_id(self, mentee_id: UUID) -> list[LessonInvoice]:

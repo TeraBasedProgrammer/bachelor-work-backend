@@ -12,6 +12,7 @@ from app.admin import (
     ActivityCategoryUserAdmin,
     ChatConversationAdmin,
     ChatMessageAdmin,
+    InvoiceAdmin,
     PostAdmin,
     TransactionAdmin,
     UserAdmin,
@@ -37,6 +38,7 @@ admin.add_view(ChatConversationAdmin)
 admin.add_view(ChatMessageAdmin)
 admin.add_view(PostAdmin)
 admin.add_view(TransactionAdmin)
+admin.add_view(InvoiceAdmin)
 
 app.include_router(router)
 

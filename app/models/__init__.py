@@ -1,4 +1,5 @@
 from app.models.chat import ChatConversation, ChatMessage, MessageTypes
+from app.models.invoice import LessonInvoice
 from app.models.payment import PaymentTypes, Transaction, TransactionStatuses
 from app.models.post import ActivityCategoryPost, Post
 from app.models.user import (
@@ -25,4 +26,5 @@ __all__ = [
     "Transaction",
     "PaymentTypes",
     "TransactionStatuses",
+    "LessonInvoice",
 ]

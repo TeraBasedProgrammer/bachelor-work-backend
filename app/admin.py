@@ -1,6 +1,7 @@
 from sqladmin import ModelView
 
 from app.models.chat import ChatConversation, ChatMessage
+from app.models.invoice import LessonInvoice
 from app.models.payment import Transaction
 from app.models.post import ActivityCategoryPost, Post
 from app.models.user import (
@@ -76,6 +77,14 @@ class ActivityCategoryPostAdmin(ModelView, model=ActivityCategoryPost):
 
 
 class TransactionAdmin(ModelView, model=Transaction):
+    column_list = "__all__"
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_view_details = True
+
+
+class InvoiceAdmin(ModelView, model=LessonInvoice):
     column_list = "__all__"
     can_create = True
     can_edit = True

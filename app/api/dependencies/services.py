@@ -56,6 +56,7 @@ def get_post_service(
 
 def get_invoice_service(
     invoice_repository: InvoiceRepository = Depends(get_repository(InvoiceRepository)),
+    user_repository: UserRepository = Depends(get_repository(UserRepository)),
 ) -> InvoiceService:
-    service = InvoiceService(invoice_repository)
+    service = InvoiceService(invoice_repository, user_repository)
     return service
